@@ -2,6 +2,7 @@ package org.launchcode.javawebdevtechjobspersistent.controllers;
 
 import org.launchcode.javawebdevtechjobspersistent.models.Employer;
 import org.launchcode.javawebdevtechjobspersistent.models.Job;
+import org.launchcode.javawebdevtechjobspersistent.models.Skill;
 import org.launchcode.javawebdevtechjobspersistent.models.data.EmployerRepository;
 import org.launchcode.javawebdevtechjobspersistent.models.data.JobRepository;
 import org.launchcode.javawebdevtechjobspersistent.models.data.SkillRepository;
@@ -44,12 +45,13 @@ public class HomeController {
         model.addAttribute("title", "Add Job");
         model.addAttribute(new Job());
         model.addAttribute("employers", employerRepository.findAll());
+        model.addAttribute("skills", skillRepository.findAll());
         return "add";
     }
 
     @PostMapping("add")
     public String processAddJobForm(@ModelAttribute @Valid Job newJob,
-                                       Errors errors, Model model, @RequestParam int employerId, @RequestParam String name)  {
+                                       Errors errors, Model model, @RequestParam int employerId, @RequestParam String name, @RequestParam List<Integer> skills)  {
 // this was causing an error - , @RequestParam List<Integer> skills)
         if (errors.hasErrors()) {
             model.addAttribute("title", "Add Job");
@@ -59,12 +61,20 @@ public class HomeController {
         //create a new job object based on this id selected in the drop down and the name provided by user in input box in the form.
         Optional<Employer> selectedEmployer = employerRepository.findById(employerId);
         if (selectedEmployer.isPresent()) {
+
             Employer employer = selectedEmployer.get();
+
             Job newJobObject = new Job();
             newJobObject.setEmployer(employer);
             newJobObject.setName(name);
+
+            List<Skill> skillObjs = (List<Skill>) skillRepository.findAllById(skills);
+            newJobObject.setSkills(skillObjs);
+
             jobRepository.save(newJobObject);
-            return "redirect:";
+
+            model.addAttribute("job", newJobObject);
+            return "view";
         } else {
             return "add";
         }

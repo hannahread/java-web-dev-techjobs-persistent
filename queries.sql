@@ -17,3 +17,10 @@ WHERE (location = "St. Louis City");
 DROP TABLE job
 
 ## Part 4: Test it with SQL
+
+SELECT name,
+description
+FROM skill
+INNER JOIN job_skills ON skill.id =
+job_skills.skills_id
+ORDER BY name ASC;
